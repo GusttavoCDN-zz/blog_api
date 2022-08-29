@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
+        type: DataTypes.INTEGER,
       },
       name: {
         allowNull: false,
