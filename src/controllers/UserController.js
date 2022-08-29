@@ -10,6 +10,11 @@ class UserController {
     const token = await UserService.create(req.body);
     return res.status(httpStatus.created).json({ token });
   }
+
+  static async getAll(req, res) {
+    const users = await UserService.getAll();
+    return res.status(httpStatus.ok).json(users);
+  }
 }
 
 module.exports = UserController;

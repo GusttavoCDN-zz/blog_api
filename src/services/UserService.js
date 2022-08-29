@@ -34,6 +34,11 @@ class UserService {
     const token = generateToken({ user: user.email });
     return token;
   }
+
+  static async getAll() {
+    const users = User.findAll({ attributes: { exclude: ['password'] } });
+    return users;
+  }
 }
 
 module.exports = UserService;
