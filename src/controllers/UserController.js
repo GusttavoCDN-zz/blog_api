@@ -15,6 +15,12 @@ class UserController {
     const users = await UserService.getAll();
     return res.status(httpStatus.ok).json(users);
   }
+
+  static async getOne(req, res) {
+    const { id } = req.params;
+    const user = await UserService.getOne(id);
+    return res.status(httpStatus.ok).json(user);
+  }
 }
 
 module.exports = UserController;
