@@ -2,6 +2,7 @@ const Joi = require('joi');
 const throwError = require('../helpers/throwError');
 
 const { User } = require('../database/models');
+const generateToken = require('../helpers/generateToken');
 
 class UserService {
   static validateUserBody(unknown) {
@@ -30,7 +31,8 @@ class UserService {
     }
 
     await User.create(user);
-    return user;
+    const token = generateToken({ user: user.email });
+    return token;
   }
 }
 

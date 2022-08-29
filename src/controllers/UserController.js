@@ -7,8 +7,8 @@ class UserController {
    * @param {import('express').Response} res
    */
   static async create(req, res) {
-    const result = await UserService.create(req.body);
-    return res.status(httpStatus.created).json(result);
+    const token = await UserService.create(req.body);
+    return res.status(httpStatus.created).json({ token });
   }
 }
 
