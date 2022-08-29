@@ -11,9 +11,9 @@ class CategoryController {
     return res.status(httpStatus.created).json(categorie);
   }
 
-  static async getAll(req, res) {
-    const users = await CategoryService.getAll();
-    return res.status(httpStatus.ok).json(users);
+  static async getAll(_req, res) {
+    const categories = await CategoryService.getAll();
+    return res.status(httpStatus.ok).json(categories);
   }
 
   static async getOne(req, res) {

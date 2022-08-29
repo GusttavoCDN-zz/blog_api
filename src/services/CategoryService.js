@@ -32,18 +32,8 @@ class CategoryService {
   }
 
   static async getAll() {
-    const users = Category.findAll({ attributes: { exclude: ['password'] } });
-    return users;
-  }
-
-  static async getOne(id) {
-    const user = await Category.findOne({
-      where: { id },
-      attributes: { exclude: ['password'] },
-    });
-
-    if (!user) return throwError('notFound', 'User does not exist');
-    return user;
+    const categories = Category.findAll();
+    return categories;
   }
 }
 
