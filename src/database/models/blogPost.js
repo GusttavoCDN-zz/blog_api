@@ -8,6 +8,12 @@ module.exports = (sequelize, DataTypes) => {
   const BlogPost = sequelize.define(
     'BlogPost',
     {
+      id: {
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
+        type: DataTypes.INTEGER,
+      },
       title: {
         allowNull: false,
         type: DataTypes.STRING,
@@ -15,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       content: {
         allowNull: false,
         type: DataTypes.STRING,
+      },
+      userId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
       },
       published: {
         allowNull: false,

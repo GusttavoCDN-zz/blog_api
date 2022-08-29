@@ -4,10 +4,21 @@
  * @param {import('sequelize').Sequelize} sequelize
  * @param {import('sequelize').DataTypes } DataTypes
  */
-module.exports = (sequelize, _DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
   const PostCategory = sequelize.define(
-    'PostCategorie',
-    {},
+    'PostCategory',
+    {
+      postId: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+      categoryId: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+    },
     { tableName: 'PostCategories', timestamps: false },
   );
 
