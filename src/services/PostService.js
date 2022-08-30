@@ -3,6 +3,7 @@ const config = require('../database/config/config');
 const CategoryService = require('./CategoryService');
 const throwError = require('../helpers/throwError');
 
+const { Op } = Sequelize;
 const sequelize = new Sequelize(config.development);
 const { BlogPost, PostCategory, User, Category } = require('../database/models');
 
@@ -59,6 +60,27 @@ class PostService {
 
   static async getAll() {
     const posts = await BlogPost.findAll({
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    return posts;
+  }
+
+  static async getAllBySearch(query) {
+    const posts = await BlogPost.findAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.like]: `%${query}%` } },
+          { content: { [Op.like]: `%${query}%` } },
+        ],
+      },
       include: [
         { model: User, as: 'user', attributes: { exclude: ['password'] } },
         {

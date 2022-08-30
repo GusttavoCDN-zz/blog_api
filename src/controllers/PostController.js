@@ -17,6 +17,12 @@ class PostController {
     return res.status(httpStatus.ok).json(posts);
   }
 
+  static async getAllBySearch(req, res) {
+    const { q } = req.query;
+    const posts = await PostService.getAllBySearch(q);
+    return res.status(httpStatus.ok).json(posts);
+  }
+
   static async getOne(req, res) {
     const { id } = req.params;
     const post = await PostService.getOne(id);
