@@ -1,24 +1,12 @@
 const Sequelize = require('sequelize');
-const Joi = require('joi');
 const config = require('../database/config/config');
 const CategoryService = require('./CategoryService');
 const throwError = require('../helpers/throwError');
 
 const sequelize = new Sequelize(config.development);
-const { BlogPost, PostCategory } = require('../database/models');
+const { BlogPost, PostCategory, User, Category } = require('../database/models');
 
 class PostService {
-  static validatePostBody(unknown) {
-    const schema = Joi.object({
-      title: Joi.string().required(),
-      content: Joi.string().required(),
-      categoryIds: Joi.array().items(Joi.number()).required(),
-    });
-
-    const { error } = schema.validate(unknown);
-    return { error } || null;
-  }
-
   static async validateCategoryIds(categoryIds) {
     const dbCategoriesIds = await CategoryService.getAllCategoriesIds();
 
@@ -53,8 +41,28 @@ class PostService {
 
     const checkedCategoryIds = await this.validateCategoryIds(categoryIds);
 
-    const post = await this.createPostTransaction(userId, title, content, checkedCategoryIds);
+    const post = await this.createPostTransaction(
+      userId,
+      title,
+      content,
+      checkedCategoryIds,
+    );
     return post;
+  }
+
+  static async getAll() {
+    const posts = await BlogPost.findAll({
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    return posts;
   }
 }
 
