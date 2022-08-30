@@ -37,7 +37,7 @@ class PostService {
   static async validatePostOwner(postId, userId) {
     const post = await BlogPost.findByPk(postId);
 
-    if (!post) return throwError('badRequest', 'Post does not exist');
+    if (!post) return throwError('notFound', 'Post does not exist');
     if (post.userId !== userId) return throwError('unauthorized', 'Unauthorized user');
   }
 
@@ -103,6 +103,14 @@ class PostService {
 
     const post = await this.getOne(postId);
     return post;
+  }
+
+  static async delete(userId, postId) {
+    await this.validatePostOwner(postId, userId);
+
+    await BlogPost.destroy({
+      where: { id: postId, userId },
+    });
   }
 }
 

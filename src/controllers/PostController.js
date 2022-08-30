@@ -29,6 +29,17 @@ class PostController {
     const post = await PostService.update(req.body, userId, id);
     return res.status(httpStatus.ok).json(post);
   }
+
+  /**
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  static async delete(req, res) {
+    const { id } = req.params;
+    const { id: userId } = req.user;
+    await PostService.delete(userId, id);
+    return res.sendStatus(httpStatus.noContent);
+  }
 }
 
 module.exports = PostController;
