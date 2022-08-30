@@ -64,6 +64,19 @@ class PostService {
 
     return posts;
   }
+
+  static async getOne(id) {
+    const post = await BlogPost.findOne({
+      where: { id },
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories', through: { attributes: [] } },
+      ],
+    });
+
+    if (!post) return throwError('notFound', 'Post does not exist');
+    return post;
+  }
 }
 
 module.exports = PostService;

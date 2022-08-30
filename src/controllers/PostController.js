@@ -16,6 +16,12 @@ class PostController {
     const posts = await PostService.getAll();
     return res.status(httpStatus.ok).json(posts);
   }
+
+  static async getOne(req, res) {
+    const { id } = req.params;
+    const post = await PostService.getOne(id);
+    return res.status(httpStatus.ok).json(post);
+  }
 }
 
 module.exports = PostController;
