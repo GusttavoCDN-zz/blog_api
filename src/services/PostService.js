@@ -34,6 +34,13 @@ class PostService {
     }
   }
 
+  static async validatePostOwner(postId, userId) {
+    const post = await BlogPost.findByPk(postId);
+
+    if (!post) return throwError('badRequest', 'Post does not exist');
+    if (post.userId !== userId) return throwError('unauthorized', 'Unauthorized user');
+  }
+
   static async create({ title, content, categoryIds }, userId) {
     if (!title || !content || !categoryIds) {
       return throwError('badRequest', 'Some required fields are missing');
@@ -65,9 +72,9 @@ class PostService {
     return posts;
   }
 
-  static async getOne(id) {
+  static async getOne(postId) {
     const post = await BlogPost.findOne({
-      where: { id },
+      where: { id: postId },
       include: [
         { model: User, as: 'user', attributes: { exclude: ['password'] } },
         { model: Category, as: 'categories', through: { attributes: [] } },
@@ -75,6 +82,26 @@ class PostService {
     });
 
     if (!post) return throwError('notFound', 'Post does not exist');
+    return post;
+  }
+
+  static async update({ title, content }, userId, postId) {
+    if (!title || !content) {
+      return throwError('badRequest', 'Some required fields are missing');
+    }
+
+    await this.validatePostOwner(postId, userId);
+
+    const wasUpdated = await BlogPost.update(
+      { title, content },
+      {
+        where: { id: postId, userId },
+      },
+    );
+
+    if (!wasUpdated) return throwError('unauthorized', 'Unauthorized user');
+
+    const post = await this.getOne(postId);
     return post;
   }
 }

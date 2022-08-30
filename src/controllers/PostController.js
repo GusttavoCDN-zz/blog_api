@@ -7,8 +7,8 @@ class PostController {
    * @param {import('express').Response} res
    */
   static async create(req, res) {
-    const { id } = req.user;
-    const post = await PostService.create(req.body, id);
+    const { id: userId } = req.user;
+    const post = await PostService.create(req.body, userId);
     return res.status(httpStatus.created).json(post);
   }
 
@@ -20,6 +20,13 @@ class PostController {
   static async getOne(req, res) {
     const { id } = req.params;
     const post = await PostService.getOne(id);
+    return res.status(httpStatus.ok).json(post);
+  }
+
+  static async update(req, res) {
+    const { id } = req.params;
+    const { id: userId } = req.user;
+    const post = await PostService.update(req.body, userId, id);
     return res.status(httpStatus.ok).json(post);
   }
 }
