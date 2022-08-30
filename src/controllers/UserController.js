@@ -21,6 +21,12 @@ class UserController {
     const user = await UserService.getOne(id);
     return res.status(httpStatus.ok).json(user);
   }
+
+  static async delete(req, res) {
+    const { id: userId } = req.user;
+    await UserService.delete(userId);
+    return res.sendStatus(httpStatus.noContent);
+  }
 }
 
 module.exports = UserController;

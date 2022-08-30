@@ -1,7 +1,13 @@
 const Joi = require('joi');
+const Sequelize = require('sequelize');
+
+const config = require('../database/config/config');
+
+const sequelize = new Sequelize(config.development);
+
 const throwError = require('../helpers/throwError');
 
-const { User } = require('../database/models');
+const { User, BlogPost, PostCategory } = require('../database/models');
 const generateToken = require('../helpers/generateToken');
 
 class UserService {
@@ -48,6 +54,27 @@ class UserService {
 
     if (!user) return throwError('notFound', 'User does not exist');
     return user;
+  }
+
+  static async delete(userId) {
+    const t = await sequelize.transaction();
+    try {
+      const posts = await BlogPost.findAll({ where: { userId } });
+
+      await Promise.all(
+        posts.map(({ id: postId }) =>
+          PostCategory.destroy({ where: { postId } }, { transaction: t })),
+      );
+
+      await BlogPost.destroy({ where: { userId } }, { transaction: t });
+
+      await User.destroy({ where: { id: userId } }, { transaction: t });
+
+      await t.commit();
+    } catch (error) {
+      await t.rollback();
+      return throwError('badRequest', error.message);
+    }
   }
 }
 
