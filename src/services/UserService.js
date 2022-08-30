@@ -30,8 +30,8 @@ class UserService {
       return throwError('conflict', 'User already registered');
     }
 
-    await User.create(user);
-    const token = generateToken({ user: user.email });
+    const newUser = await User.create(user);
+    const token = generateToken(newUser);
     return token;
   }
 

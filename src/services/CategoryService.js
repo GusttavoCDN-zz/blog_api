@@ -35,6 +35,14 @@ class CategoryService {
     const categories = Category.findAll();
     return categories;
   }
+
+  static async getAllCategoriesIds() {
+    const categories = await Category.findAll({
+      attributes: { exclude: ['name'] },
+    });
+
+    return categories.map(({ id }) => id);
+  }
 }
 
 module.exports = CategoryService;
