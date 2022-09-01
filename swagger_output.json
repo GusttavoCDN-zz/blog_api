@@ -7,18 +7,29 @@
   },
   "servers": [
     {
-      "url": "https://localhost:3000/",
+      "url": "http://localhost:3000/",
       "description": "Rota principal de teste"
     },
     {
-      "url": "https://localhost:3001/",
+      "url": "http://localhost:3001/",
       "description": "Rota secundaria de teste"
     }
   ],
   "tags": [
     {
-      "name": "user",
+      "name": "User",
       "description": "Rotas para manusear usuarios"
+    },
+    {
+      "name": "Categories",
+      "description": "Rotas para manusear categorias"
+    },
+    {
+      "name": "Post",
+      "description": "Rotas para manusear posts"
+    },
+    {
+      "name": "Login"
     }
   ],
   "paths": {
@@ -26,6 +37,7 @@
       "post": {
         "summary": "Login",
         "description": "Rota para fazer login e gerar token de auth",
+        "tags": ["Login"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -82,15 +94,8 @@
       "delete": {
         "summary": "Deleta usuario",
         "description": "Deleta o usuario logado e todos os seus posts no banco",
-        "tags": ["user"],
+        "tags": ["User"],
         "security": [{ "BearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": true
-          }
-        ],
         "responses": {
           "204": {
             "description": "Quando o usuario foi deletado com sucesso"
@@ -100,8 +105,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                    "$ref": "#/components/schemas/Error"
-                  }
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -113,17 +117,16 @@
       "get": {
         "summary": "Pega um usuario",
         "description": "Pega um usuario no banco de dados pelo ID",
-        "tags": ["user"],
+        "security": [{ "BearerAuth": [] }],
+        "tags": ["User"],
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "required": true
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -131,7 +134,7 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
+                "schema": { "$ref": "#/components/schemas/UserResponse" }
               }
             }
           },
@@ -141,146 +144,367 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
               }
-            } 
+            }
           }
         }
       }
     },
     "/user/": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+        "summary": "Lista usuarios",
+        "description": "Lista todos os usuarios no banco de dados",
+        "security": [{ "BearerAuth": [] }],
+        "tags": ["User"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserResponse" }
+                }
+              }
+            }
           }
-        ],
-        "responses": {}
+        }
       },
       "post": {
-        "description": "",
-        "parameters": [],
-        "responses": {}
+        "summary": "Cria usuario",
+        "description": "Cria um usuario novo no banco de dados",
+        "tags": ["User"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/categories/": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+        "summary": "Lista categorias",
+        "description": "Lista todas as categorias no banco de dados",
+        "tags": ["Categories"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoryResponse" }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "name": "Inovação"
+                  },
+                  {
+                    "id": 2,
+                    "name": "Escola"
+                  }
+                ]
+              }
+            }
           }
-        ],
-        "responses": {}
+        }
       },
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+        "summary": "Cria categoria",
+        "description": "Cria uma nova categoria e adiciona no banco de dados",
+        "tags": ["Categories"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryBody"
+              }
+            }
           }
-        ],
-        "responses": {}
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/post/search": {
       "get": {
-        "description": "",
+        "summary": "Pega posts por query",
+        "description": "Pega todos os posts que possuem a query em seu titulo ou conteudo",
+        "tags": ["Post"],
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "q",
             "in": "query",
-            "type": "string"
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PostResponse" }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/post/{id}": {
       "get": {
-        "description": "",
+        "summary": "Pega um post",
+        "description": "Pega um post no banco de dados pelo ID",
+        "tags": ["Post"],
+        "security": [{ "BearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostGetResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
       },
       "put": {
-        "description": "",
+        "summary": "Atualiza um post",
+        "description": "Atualiza um post no banco de dados pelo ID caso a pessoa seja sua autora",
+        "tags": ["Post"],
+        "security": [{ "BearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
-        "responses": {}
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "title": { "type": "string" },
+                  "content": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostGetResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
       },
       "delete": {
-        "description": "",
+        "summary": "Deleta um post",
+        "description": "Deleta um post no banco de dados pelo ID caso a pessoa seja sua autora",
+        "tags": ["Post"],
+        "security": [{ "BearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
-        "responses": {}
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/post/": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+        "summary": "Lista posts",
+        "description": "Lista todos os posts no banco de dados",
+        "security": [{ "BearerAuth": [] }],
+        "tags": ["Post"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PostGetResponse" }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "title": "Post do Ano",
+                    "content": "Melhor post do ano",
+                    "userId": 1,
+                    "published": "2011-08-01T19:58:00.000Z",
+                    "updated": "2011-08-01T19:58:51.000Z",
+                    "user": {
+                      "id": 1,
+                      "displayName": "Lewis Hamilton",
+                      "email": "lewishamilton@gmail.com",
+                      "image": "https://upload.wikimedia.org/wikipedia/commons/1/18/Lewis_Hamilton_2016_Malaysia_2.jpg"
+                    },
+                    "categories": [
+                      {
+                        "id": 1,
+                        "name": "Inovação"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           }
-        ],
-        "responses": {}
+        }
       },
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+        "summary": "Cria post",
+        "description": "Cria um post e adiciona no banco de dados",
+        "tags": ["Post"],
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostBody"
+              }
+            }
           }
-        ],
-        "responses": {}
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -316,20 +540,96 @@
           }
         }
       },
-      "User": {
+      "UserBody": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "number"
+          "displayName": { "type": "string" },
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "image": { "type": "string" }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "displayName": { "type": "string" },
+          "email": { "type": "string" },
+          "image": { "type": "string" }
+        }
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "name": { "type": "string" }
+        }
+      },
+      "CategoryBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" }
+        },
+        "example": {
+          "name": "TypeScript"
+        }
+      },
+      "PostBody": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "categoryIds": {
+            "type": "array",
+            "items": { "type": "number" }
+          }
+        },
+        "example": {
+          "title": "Latest updates, August 1st",
+          "content": "The whole text for the blog post goes here in this key",
+          "categoryIds": [1, 2]
+        }
+      },
+      "PostResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "categoryIds": {
+            "type": "array",
+            "items": { "type": "number" }
           },
-          "displayName": {
-            "type": "string"
+          "userId": { "type": "number" },
+          "updated": { "type": "string" },
+          "published": { "type": "string" }
+        },
+        "example": {
+          "id": 3,
+          "title": "Latest updates, August 1st",
+          "content": "The whole text for the blog post goes here in this key",
+          "userId": 1,
+          "updated": "2022-05-18T18:00:01.196Z",
+          "published": "2022-05-18T18:00:01.196Z"
+        }
+      },
+      "PostGetResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "number" },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "categoryIds": {
+            "type": "array",
+            "items": { "type": "number" }
           },
-          "email": {
-            "type": "string"
-          },
-          "image": {
-            "type": "string"
+          "userId": { "type": "number" },
+          "updated": { "type": "string" },
+          "published": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/UserResponse" },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CategoryResponse" }
           }
         }
       }

@@ -8,8 +8,8 @@ const httpStatus = require('../helpers/httpStatus');
  * @param {import('express').NextFunction} next
  */
 const authMiddleware = async (req, res, next) => {
-  const token = req.headers.authorization;
-
+  const [, token] = req.headers.authorization.split(' ');
+  
   if (!token) return throwError('unauthorized', 'Token not found');
   try {
     const user = validateToken(token);
