@@ -61,7 +61,7 @@ class PostService {
   static async getAll() {
     const posts = await BlogPost.findAll({
       include: [
-        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: User, as: 'users', attributes: { exclude: ['password'] } },
         {
           model: Category,
           as: 'categories',
@@ -69,7 +69,6 @@ class PostService {
         },
       ],
     });
-
     return posts;
   }
 
@@ -82,7 +81,7 @@ class PostService {
         ],
       },
       include: [
-        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: User, as: 'users', attributes: { exclude: ['password'] } },
         {
           model: Category,
           as: 'categories',
@@ -98,7 +97,7 @@ class PostService {
     const post = await BlogPost.findOne({
       where: { id: postId },
       include: [
-        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: User, as: 'users', attributes: { exclude: ['password'] } },
         { model: Category, as: 'categories', through: { attributes: [] } },
       ],
     });
